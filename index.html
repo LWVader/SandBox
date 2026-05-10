@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Animated Send Message Button</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <button class="btn-message" id="sendButton">
+    <div class="state state--default">
+      <svg class="plane-icon" viewBox="0 0 24 24">
+        <path d="M21 3L3 10.5L11.5 13M21 3L13.5 21L11.5 13M21 3L11.5 13" />
+      </svg>
+      <span class="label">Send Message</span>
+    </div>
+
+    <div class="state state--sent">
+      <svg class="check-icon" viewBox="0 0 24 24">
+        <path d="M20 6L9 17L4 12" />
+      </svg>
+      <span class="label">Sent!</span>
+    </div>
+  </button>
+
+  <script src="script.js"></script>
+</body>
+</html>

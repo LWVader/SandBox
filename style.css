@@ -1,0 +1,148 @@
+:root {
+    --radius: 14px;
+    --btn-color: #5d77ec;
+    --btn-color-top: #7a91f0;
+    --btn-side: #3a51b5;
+    --text: #ffffff;
+    --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #e8e8e8;
+    font-family: system-ui, sans-serif;
+}
+
+/* 1. Base Button Style */
+.btn-message {
+    all: unset;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 220px;
+    height: 68px;
+    border-radius: var(--radius);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    background: linear-gradient(to bottom, var(--btn-color-top) 0%, var(--btn-color) 100%);
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    
+    /* Starting 3D Position */
+    transform: translateY(-6px);
+    box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.4), 
+        0 6px 0 var(--btn-side), 
+        0 10px 15px rgba(0, 0, 0, 0.2);
+        
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+/* 2. Unified Hover - BOTH Lift and Shine */
+.btn-message:hover {
+    /* MERGED: Keep the lift here */
+    transform: translateY(-8px); 
+    box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.4), 
+        0 8px 0 var(--btn-side), 
+        0 12px 25px rgba(93, 119, 236, 0.3);
+}
+
+.btn-message::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transform: skewX(-20deg);
+    pointer-events: none;
+}
+
+.btn-message:hover::after {
+    left: 150%;
+    transition: left 1.5s ease-in-out;
+}
+
+/* 3. Click & Sent States */
+.btn-message:active, 
+.btn-message.is-sent {
+    transform: translateY(0px); /* Hits the floor */
+    box-shadow: 
+        inset 0 4px 10px rgba(0, 0, 0, 0.3), 
+        0 0px 0 var(--btn-side), 
+        0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-message.is-sent {
+    pointer-events: none;
+}
+
+/* 4. Animation Transitions */
+.state {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.state--sent {
+    opacity: 0;
+    transform: translateY(15px);
+}
+
+.state svg {
+    width: 24px;
+    height: 24px;
+    stroke: white;
+    stroke-width: 2;
+    fill: none;
+}
+
+/* 5. Triggering the FlyAway */
+/* 1. Ensure the state container doesn't block the animation */
+.state--default {
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* 2. The Animation Trigger */
+/* We use 'display: inline-block' to ensure transform math works correctly */
+.btn-message.is-sent .plane-icon {
+    display: inline-block; 
+    animation: flyAway 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* 3. The Flight Path */
+@keyframes flyAway {
+    0% {
+        transform: translate(0, 0) rotate(0);
+        opacity: 1;
+    }
+    20% {
+        /* Slight dip before takeoff for realism */
+        transform: translate(-5px, 5px) rotate(-10deg);
+        opacity: 1;
+    }
+    100% {
+        /* Fly "Up and Out" more steeply to avoid clipping */
+        transform: translate(120px, -120px) rotate(30deg);
+        opacity: 0;
+    }
+}
