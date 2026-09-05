@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import config from './config.jsx';
+import { 
+  PRESETS, 
+  GOOGLE_FONTS, 
+  SHAPE_PRESETS, 
+  ANIMATION_CLASSES, 
+  MASCOT_CHARACTERS,
+  hexToRgba,
+  getClipPathValue,
+  getCanvasBackground,
+  generateCode
+} from './appConfig.jsx';
 
 // ======================================================================
 // MAIN COMPONENT: ROOT APP
@@ -51,7 +61,7 @@ export default function RootApp() {
 
   // [EVENT HANDLERS & STATE UPDATERS]
   const updateConfig = (key, value) => {
-    setConfig((prev) => ({
+   setAppConfig((prev) => ({
       ...prev,
       [key]: value
     }));
@@ -88,7 +98,7 @@ export default function RootApp() {
         Math.floor(Math.random() * SHAPE_PRESETS.length)
       ].id;
 
-    setConfig((prev) => ({
+    setAppConfig((prev) => ({
       ...prev,
       blur: Math.floor(Math.random() * 30) + 5,
       opacity: Number((Math.random() * 0.4 + 0.1).toFixed(2)),

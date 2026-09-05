@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
-
 // ======================================================================
 // CONSTANTS & CONFIGURATIONS
 // ======================================================================
 
 // [TYPOGRAPHY CONFIGURATION]
-const GOOGLE_FONTS = [
+export const GOOGLE_FONTS = [
   'Inter',
   'Poppins',
   'Roboto Mono',
@@ -15,7 +13,7 @@ const GOOGLE_FONTS = [
   'Fira Code',
 ];
 
-const EMOJI_LIBRARY = {
+export const EMOJI_LIBRARY = {
   faces: [
     // Smiling & Affection
     { emoji: '😀', hexcode: '1F600', shortname: ':grinning:', name: 'Grinning Face' },
@@ -167,12 +165,12 @@ const EMOJI_LIBRARY = {
 };
 
 // Keep the picker data-driven so it stays in sync with the emoji library.
-const EMOJI_OPTIONS = [...EMOJI_LIBRARY.faces, ...EMOJI_LIBRARY.places].map(
+export const EMOJI_OPTIONS = [...EMOJI_LIBRARY.faces, ...EMOJI_LIBRARY.places].map(
   ({ emoji }) => emoji
 );
 
 // Map original defaults alongside transformed entries from EMOJI_LIBRARY
-const MASCOT_CHARACTERS = [
+export const MASCOT_CHARACTERS = [
   // Original Defaults
   { id: 'bot', name: 'Cyber Bot', avatar: '🤖', category: 'default' },
   { id: 'cat', name: 'Glass Kitty', avatar: '🐱', category: 'default' },
@@ -202,7 +200,7 @@ const MASCOT_CHARACTERS = [
 ];
 
 // [SHAPES & GEOMETRY CONFIGURATION]
-const SHAPE_PRESETS = [
+export const SHAPE_PRESETS = [
   { id: 'none', label: 'Standard Box' },
   {
     id: 'gear',
@@ -232,7 +230,7 @@ const SHAPE_PRESETS = [
 ];
 
 // [ANIMATIONS CONFIGURATION]
-const ANIMATION_CLASSES = {
+export const ANIMATION_CLASSES = {
   none: '',
   pulse: 'animate-pulse',
   bounce: 'animate-bounce',
@@ -243,7 +241,7 @@ const ANIMATION_CLASSES = {
 };
 
 // [PRESETS & DEFAULT CONFIGURATIONS]
-const PRESETS = {
+export const PRESETS = {
   frostedCard: {
     name: 'Frosted Glass Card',
     target: 'card',
@@ -419,7 +417,7 @@ const PRESETS = {
 // HELPER FUNCTIONS & CODE GENERATORS
 // ======================================================================
 
-function hexToRgba(hex, alpha) {
+export function hexToRgba(hex, alpha) {
   let c = hex.replace('#', '');
 
   if (c.length === 3) {
@@ -434,7 +432,7 @@ function hexToRgba(hex, alpha) {
   return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
 }
 
-function getCanvasBackground(type, img) {
+export function getCanvasBackground(type, img) {
   if (type === 'image' && img) {
     return {
       backgroundImage: `url(${img})`,
@@ -457,13 +455,13 @@ function getCanvasBackground(type, img) {
   };
 }
 
-function getClipPathValue(shapeId) {
+export function getClipPathValue(shapeId) {
   const match = SHAPE_PRESETS.find((s) => s.id === shapeId);
 
   return match && match.value ? match.value : 'none';
 }
 
-function generateCode(type, config) {
+export function generateCode(type, config) {
   const bg = hexToRgba(config.tintColor, config.opacity);
   const border = hexToRgba(config.borderColor, config.borderOpacity);
   const clip = getClipPathValue(config.shape);
