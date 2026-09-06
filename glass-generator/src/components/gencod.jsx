@@ -3,7 +3,7 @@
 // =================================================================
 
 import React, { useState } from 'react';
-import { hexToRgba, getClipPathValue, ANIMATION_CLASSES } from '../appConfig';
+import { hexToRgba, getClipPathValue, ANIMATION_CLASSES, DEFAULT_GRADIENT_COLORS } from '../appConfig';
 
 const CODE_EXPORTS = {
   css: { filename: 'glass-component.css' },
@@ -45,6 +45,23 @@ function getCodeHeader(type) {
 // ${line}
 
 `;
+}
+
+function getGeneratedBackgroundCSS(config) {
+  const type = config.gradientType || 'linear';
+  const angle = config.gradientAngle ?? 135;
+  const position = config.gradientPosition || 'center';
+  const stops = (config.colorStops || DEFAULT_GRADIENT_COLORS)
+    .map((s) => `${s.color} ${s.pos ?? s.stop}%`)
+    .join(', ');
+
+  if (type === 'linear') {
+    return `linear-gradient(${angle}deg, ${stops})`;
+  } else if (type === 'conic') {
+    return `conic-gradient(from ${angle}deg at ${position}, ${stops})`;
+  } else {
+    return `radial-gradient(circle at ${position}, ${stops})`;
+  }
 }
 
 export default function GenCod({ config, isPro, onTriggerPaywall }) {
@@ -187,6 +204,7 @@ export function generateCode(type, config) {
   const bg = hexToRgba(config.tintColor, config.opacity);
   const border = hexToRgba(config.borderColor, config.borderOpacity);
   const clip = getClipPathValue(config.shape);
+  const gradientCSS = getGeneratedBackgroundCSS(config);
 
   const transform =
     `perspective(${config.perspective}px) ` +
@@ -196,7 +214,12 @@ export function generateCode(type, config) {
 
   switch (type) {
     case 'css':
-      return getCodeHeader(type) + `.glass-component {
+      return getCodeHeader(type) + `/* Canvas Background */
+body {
+  background: ${gradientCSS};
+}
+
+.glass-component {
   width: min(${config.width}px, 100%);
   max-width: 100%;
   box-sizing: border-box;
@@ -211,26 +234,30 @@ export function generateCode(type, config) {
 }`;
 
     case 'tailwind':
-      return getCodeHeader(type) + `<div className="w-[min(${config.width}px,100%)] max-w-full box-border bg-[${bg}] backdrop-blur-[${config.blur}px] rounded-[${config.borderRadius}px] border border-[${border}] shadow-[${config.shadowX}px_${config.shadowY}px_${config.shadowBlur}px_rgba(0,0,0,${config.shadowOpacity})] ${ANIMATION_CLASSES[config.animation]}" style={{ clipPath: '${clip}', transform: '${transform}' }}>
-  <!-- Content -->
+      return getCodeHeader(type) + `<div className="min-h-screen flex items-center justify-center" style={{ background: '${gradientCSS}' }}>
+  <div className="w-[min(${config.width}px,100%)] max-w-full box-border bg-[${bg}] backdrop-blur-[${config.blur}px] rounded-[${config.borderRadius}px] border border-[${border}] shadow-[${config.shadowX}px_${config.shadowY}px_${config.shadowBlur}px_rgba(0,0,0,${config.shadowOpacity})] ${ANIMATION_CLASSES[config.animation]}" style={{ clipPath: '${clip}', transform: '${transform}' }}>
+    <!-- Content -->
+  </div>
 </div>`;
 
     case 'react':
       return getCodeHeader(type) + `export function GlassCard() {
   return (
-    <div style={{
-      width: 'min(${config.width}px, 100%)',
-      maxWidth: '100%',
-      boxSizing: 'border-box',
-      background: '${bg}',
-      backdropFilter: 'blur(${config.blur}px)',
-      borderRadius: '${config.borderRadius}px',
-      border: '${config.borderWidth}px solid ${border}',
-      boxShadow: '${config.shadowX}px ${config.shadowY}px ${config.shadowBlur}px rgba(0, 0, 0, ${config.shadowOpacity})',
-      clipPath: '${clip}',
-      transform: '${transform}'
-    }} className="${ANIMATION_CLASSES[config.animation]}">
-      <h3>${config.titleText}</h3>
+    <div style={{ minHeight: '100vh', background: '${gradientCSS}', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{
+        width: 'min(${config.width}px, 100%)',
+        maxWidth: '100%',
+        boxSizing: 'border-box',
+        background: '${bg}',
+        backdropFilter: 'blur(${config.blur}px)',
+        borderRadius: '${config.borderRadius}px',
+        border: '${config.borderWidth}px solid ${border}',
+        boxShadow: '${config.shadowX}px ${config.shadowY}px ${config.shadowBlur}px rgba(0, 0, 0, ${config.shadowOpacity})',
+        clipPath: '${clip}',
+        transform: '${transform}'
+      }} className="${ANIMATION_CLASSES[config.animation]}">
+        <h3>${config.titleText}</h3>
+      </div>
     </div>
   );
 }`;
@@ -264,12 +291,22 @@ export function generateCode(type, config) {
 
     case 'vue':
       return getCodeHeader(type) + `<template>
-  <div class="glass-component">
-    <h3>${config.titleText}</h3>
+  <div class="page-container">
+    <div class="glass-component">
+      <h3>${config.titleText}</h3>
+    </div>
   </div>
 </template>
 
 <style scoped>
+.page-container {
+  min-height: 100vh;
+  background: ${gradientCSS};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .glass-component {
   width: min(${config.width}px, 100%);
   max-width: 100%;
@@ -286,23 +323,32 @@ export function generateCode(type, config) {
 </style>`;
 
     case 'svelte':
-      return getCodeHeader(type) + `<div
-  class="glass-component"
-  style="
-    width: min(${config.width}px, 100%);
-    background: ${bg};
-    backdrop-filter: blur(${config.blur}px) saturate(${config.saturation}%);
-    border-radius: ${config.borderRadius}px;
-    border: ${config.borderWidth}px solid ${border};
-    box-shadow: ${config.shadowX}px ${config.shadowY}px ${config.shadowBlur}px rgba(0, 0, 0, ${config.shadowOpacity});
-    clip-path: ${clip};
-    transform: ${transform};
-  "
->
-  <h3>${config.titleText}</h3>
+      return getCodeHeader(type) + `<div class="page-container">
+  <div
+    class="glass-component"
+    style="
+      width: min(${config.width}px, 100%);
+      background: ${bg};
+      backdrop-filter: blur(${config.blur}px) saturate(${config.saturation}%);
+      border-radius: ${config.borderRadius}px;
+      border: ${config.borderWidth}px solid ${border};
+      box-shadow: ${config.shadowX}px ${config.shadowY}px ${config.shadowBlur}px rgba(0, 0, 0, ${config.shadowOpacity});
+      clip-path: ${clip};
+      transform: ${transform};
+    "
+  >
+    <h3>${config.titleText}</h3>
+  </div>
 </div>
 
 <style>
+  .page-container {
+    min-height: 100vh;
+    background: ${gradientCSS};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .glass-component {
     max-width: 100%;
     box-sizing: border-box;
