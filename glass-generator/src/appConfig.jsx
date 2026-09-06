@@ -13,6 +13,24 @@ export const GOOGLE_FONTS = [
   'Fira Code',
 ];
 
+export const DEFAULT_GRADIENT_COLORS = [
+  { color: '#4f46e5', pos: 0 },
+  { color: '#7c3aed', pos: 50 },
+  { color: '#ec4899', pos: 100 }
+];
+
+export const GRADIENT_TYPES = [
+  { id: 'linear', label: 'Linear' },
+  { id: 'radial', label: 'Radial' },
+  { id: 'conic', label: 'Conic' }
+];
+
+export const GRADIENT_POSITIONS = [
+  'center', 'top', 'bottom', 'left', 'right', 
+  'top left', 'top right', 'bottom left', 'bottom right'
+];
+
+
 export const EMOJI_LIBRARY = {
   faces: [
     // Smiling & Affection
@@ -273,7 +291,8 @@ export const PRESETS = {
     rotateX: 12,
     rotateY: -8,
     translateZ: 30,
-    showReflection: true
+    showReflection: true,
+    colorStops: [...DEFAULT_GRADIENT_COLORS]
   },
 
   cyberButton: {
@@ -307,7 +326,8 @@ export const PRESETS = {
     rotateX: 15,
     rotateY: -15,
     translateZ: 40,
-    showReflection: true
+    showReflection: true,
+    colorStops: [...DEFAULT_GRADIENT_COLORS]
   },
 
   synthwaveBadge: {
@@ -341,7 +361,8 @@ export const PRESETS = {
     rotateX: -10,
     rotateY: 10,
     translateZ: 25,
-    showReflection: true
+    showReflection: true,
+    colorStops: [...DEFAULT_GRADIENT_COLORS]
   },
 
   emeraldHUD: {
@@ -375,7 +396,8 @@ export const PRESETS = {
     rotateX: 5,
     rotateY: -5,
     translateZ: 20,
-    showReflection: true
+    showReflection: true,
+    colorStops: [...DEFAULT_GRADIENT_COLORS]
   },
 
   minimalInput: {
@@ -409,7 +431,8 @@ export const PRESETS = {
     rotateX: 0,
     rotateY: 0,
     translateZ: 0,
-    showReflection: false
+    showReflection: false,
+    colorStops: [...DEFAULT_GRADIENT_COLORS]
   }
 };
 
@@ -432,26 +455,79 @@ export function hexToRgba(hex, alpha) {
   return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
 }
 
-export function getCanvasBackground(type, img) {
-  if (type === 'image' && img) {
+export function getCanvasBackground(type, img = null, config = {}) {
+  // ---------------------------------------------------------------
+  // Image background
+  // ---------------------------------------------------------------
+  if (type === 'image' && typeof img === 'string' && img.trim()) {
     return {
-      backgroundImage: `url(${img})`,
+      backgroundImage: `url("${img.trim()}")`,
       backgroundSize: 'cover',
-      backgroundPosition: 'center'
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
     };
   }
 
+  // ---------------------------------------------------------------
+  // Grid background
+  // ---------------------------------------------------------------
   if (type === 'grid') {
+    const safeGridSize = Math.max(1, Number(config.gridSize) || 20);
     return {
-      backgroundColor: '#020617',
-      backgroundImage: 'radial-gradient(#1e293b 1px, transparent 1px)',
-      backgroundSize: '20px 20px'
+      backgroundColor: config.gridBackground || '#020617',
+      backgroundImage: `radial-gradient(${config.gridColor || '#1e293b'} 1px, transparent 1px)`,
+      backgroundSize: `${safeGridSize}px ${safeGridSize}px`
     };
+  }
+
+  // ---------------------------------------------------------------
+  // Gradient background
+  // ---------------------------------------------------------------
+  const gradientType = config.gradientType || 'linear';
+  const gradientAngle = Number.isFinite(Number(config.gradientAngle)) ? Number(config.gradientAngle) : 135;
+  const gradientPosition = config.gradientPosition || 'center';
+  const colorStops = Array.isArray(config.colorStops) ? config.colorStops : DEFAULT_GRADIENT_COLORS;
+
+  const normalizedStops = colorStops
+    .map((stop) => {
+      if (!stop || typeof stop.color !== 'string') return null;
+      const color = stop.color.trim();
+      if (!color) return null;
+
+      const rawStopValue = stop.pos !== undefined ? stop.pos : stop.stop;
+      const numericStop = Number(rawStopValue);
+
+      if (!Number.isFinite(numericStop)) return null;
+
+      return {
+        color,
+        stop: Math.min(100, Math.max(0, numericStop))
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.stop - b.stop);
+
+  const safeStops = normalizedStops.length >= 2 ? normalizedStops : DEFAULT_GRADIENT_COLORS;
+  const gradientConfigStr = safeStops.map(({ color, stop }) => `${color} ${stop}%`).join(', ');
+
+  let backgroundImage;
+  switch (gradientType) {
+    case 'linear':
+      backgroundImage = `linear-gradient(${gradientAngle}deg, ${gradientConfigStr})`;
+      break;
+    case 'conic':
+      backgroundImage = `conic-gradient(from ${gradientAngle}deg at ${gradientPosition}, ${gradientConfigStr})`;
+      break;
+    case 'radial':
+    default:
+      backgroundImage = `radial-gradient(circle at ${gradientPosition}, ${gradientConfigStr})`;
+      break;
   }
 
   return {
-    background:
-      'radial-gradient(circle at top left, #4f46e5, #7c3aed, #ec4899)'
+    backgroundImage,
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: 'cover'
   };
 }
 
@@ -459,85 +535,4 @@ export function getClipPathValue(shapeId) {
   const match = SHAPE_PRESETS.find((s) => s.id === shapeId);
 
   return match && match.value ? match.value : 'none';
-}
-
-export function generateCode(type, config) {
-  const bg = hexToRgba(config.tintColor, config.opacity);
-  const border = hexToRgba(config.borderColor, config.borderOpacity);
-  const clip = getClipPathValue(config.shape);
-
-  const transform =
-    `perspective(${config.perspective}px) ` +
-    `rotateX(${config.rotateX}deg) ` +
-    `rotateY(${config.rotateY}deg) ` +
-    `translateZ(${config.translateZ}px)`;
-
-  switch (type) {
-    case 'css':
-      return `.glass-component {
-  width: min(${config.width}px, 100%);
-  max-width: 100%;
-  box-sizing: border-box;
-  background: ${bg};
-  backdrop-filter: blur(${config.blur}px) saturate(${config.saturation}%);
-  -webkit-backdrop-filter: blur(${config.blur}px) saturate(${config.saturation}%);
-  border-radius: ${config.borderRadius}px;
-  border: ${config.borderWidth}px solid ${border};
-  box-shadow: ${config.shadowX}px ${config.shadowY}px ${config.shadowBlur}px rgba(0, 0, 0, ${config.shadowOpacity});
-  clip-path: ${clip};
-  transform: ${transform};
-}`;
-
-    case 'tailwind':
-      return `<div className="w-[min(${config.width}px,100%)] max-w-full box-border bg-[${bg}] backdrop-blur-[${config.blur}px] rounded-[${config.borderRadius}px] border border-[${border}] shadow-[${config.shadowX}px_${config.shadowY}px_${config.shadowBlur}px_rgba(0,0,0,${config.shadowOpacity})] ${ANIMATION_CLASSES[config.animation]}" style={{ clipPath: '${clip}', transform: '${transform}' }}>
-  <!-- Content -->
-</div>`;
-
-    case 'react':
-      return `export function GlassCard() {
-  return (
-    <div style={{
-      width: 'min(${config.width}px, 100%)',
-      maxWidth: '100%',
-      boxSizing: 'border-box',
-      background: '${bg}',
-      backdropFilter: 'blur(${config.blur}px)',
-      borderRadius: '${config.borderRadius}px',
-      border: '${config.borderWidth}px solid ${border}',
-      boxShadow: '${config.shadowX}px ${config.shadowY}px ${config.shadowBlur}px rgba(0, 0, 0, ${config.shadowOpacity})',
-      clipPath: '${clip}',
-      transform: '${transform}'
-    }} className="${ANIMATION_CLASSES[config.animation]}">
-      <h3>${config.titleText}</h3>
-    </div>
-  );
-}`;
-
-    case 'flutter': {
-      const alpha = Math.round(config.opacity * 255)
-        .toString(16)
-        .padStart(2, '0');
-
-      return `Transform(
-  transform: Matrix4.identity()
-    ..setEntry(3, 2, 0.001)
-    ..rotateX(${config.rotateX} * 0.0174533)
-    ..rotateY(${config.rotateY} * 0.0174533),
-  child: ClipPath(
-    clipper: CustomGlassClipper('${config.shape}'),
-    child: BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: ${config.blur}, sigmaY: ${config.blur}),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: double.infinity),
-        width: double.infinity,
-        color: Color(0x${alpha}${config.tintColor.replace('#', '')}),
-      ),
-    ),
-  ),
-)`;
-    }
-
-    default:
-      return '';
-  }
 }
