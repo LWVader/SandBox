@@ -81,7 +81,7 @@ export default function AccordionSidebar({
           >
             <div className="flex flex-col gap-1.5">
               <label className="text-[11px] text-slate-400 font-medium">
-                Geometric Polygon Shape
+                Geometric Polygon Shapes
               </label>
 
               <select

@@ -1,4 +1,4 @@
-import { GOOGLE_FONTS, SHAPE_PRESETS, PRESETS, hexToRgba, getClipPathValue, getCanvasBackground } from './appConfig';
+import { GOOGLE_FONTS, SHAPE_PRESETS, PRESETS, hexToRgba, getClipPathValue, getCanvasBackground} from './appConfig';
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import ComponentPreview from './components/ComponentPreview';
@@ -106,14 +106,7 @@ export default function RootApp() {
             >
               🎨 Studio Workspace
             </button>
-            <button
-              onClick={() => setCurrentView('customization')}
-              className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
-                currentView === 'customization' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              ⚙️ Full Customization
-            </button>
+            
           </div>
         </div>
 

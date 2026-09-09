@@ -216,24 +216,28 @@ export const MASCOT_CHARACTERS = [
     category: 'places'
   }))
 ];
+export function getMascotAvatar(characterId) {
+  const mascot = MASCOT_CHARACTERS.find((m) => m.id === characterId);
+  return mascot ? mascot.avatar : '🤖'; // fallback avatar
+}
 
 // [SHAPES & GEOMETRY CONFIGURATION]
 export const SHAPE_PRESETS = [
-  { id: 'none', label: 'Standard Box' },
+  { id: 'none', label: 'Standard Box'},
   {
     id: 'gear',
-    label: 'Cyber Gear Polygon',
+    label: 'Cyber Gear',
     value: 'polygon(10% 0%, 90% 0%, 100% 25%, 100% 75%, 90% 100%, 10% 100%, 0% 75%, 0% 25%)'
   },
   {
     id: 'synthwave',
     label: 'Synthwave Cut',
-    value: 'polygon(0 0, 88% 0, 100% 12%, 100% 100%, 12% 100%, 0 88%)'
+    value: 'polygon(0% 0%, 88% 0%, 100% 12%, 100% 100%, 12% 100%, 0% 88%)'
   },
   {
     id: 'hud',
-    label: 'Octagon HUD',
-    value: 'polygon(15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px), 0 15px)'
+    label: 'Responsive Octagon HUD',
+    value: 'polygon(12% 0%, 88% 0%, 100% 12%, 100% 88%, 88% 100%, 12% 100%, 0% 88%, 0% 12%)'
   },
   {
     id: 'hexagon',
@@ -244,6 +248,31 @@ export const SHAPE_PRESETS = [
     id: 'diamond',
     label: 'Diamond Shield',
     value: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)'
+  },
+  {
+    id: 'parallelogram',
+    label: 'Dynamic Parallelogram',
+    value: 'polygon(15% 0%, 100% 0%, 85% 100%, 0% 100%)'
+  },
+  {
+    id: 'ticket',
+    label: 'Coupon / Ticket Stub',
+    value: 'polygon(0% 0%, 100% 0%, 100% 38%, 96% 50%, 100% 62%, 100% 100%, 0% 100%, 0% 62%, 4% 50%, 0% 38%)'
+  },
+  {
+    id: 'trapezoid',
+    label: 'Cyber Trapezoid',
+    value: 'polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%)'
+  },
+  {
+    id: 'chevron',
+    label: 'Chevron Pointer',
+    value: 'polygon(0% 0%, 80% 0%, 100% 50%, 80% 100%, 0% 100%, 20% 50%)'
+  },
+  {
+    id: 'triangle',
+    label: 'Pyramid Triangle',
+    value: 'polygon(50% 0%, 100% 100%, 0% 100%)'
   }
 ];
 

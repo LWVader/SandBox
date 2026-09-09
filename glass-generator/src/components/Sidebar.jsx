@@ -346,8 +346,7 @@ export default function Sidebar({
             onChange={(v) => updateConfig('shadowOpacity', v / 100)}
           />
         </AccordionSection>
-
-        {currentView === 'customization' && (
+        
           <>
             <AccordionSection
               title="🔤 Typography & Content"
@@ -397,46 +396,52 @@ export default function Sidebar({
             </AccordionSection>
 
             <AccordionSection
-              title="🎭 Avatar & Mascot"
-              isOpen={openSection === 'mascot'}
-              onToggle={() => toggleSection('mascot')}
-            >
-              <div className="flex flex-col gap-1">
-                <label className="text-[11px] text-slate-400 font-medium">Select Emoji Icon</label>
-                <div className="flex gap-1.5 flex-wrap">
-                  {emojiOptions.map((e) => (
-                    <button
-                      key={e}
-                      onClick={() => updateConfig('emoji', e)}
-                      className={`w-7 h-7 text-xs rounded-lg border ${
-                        config.emoji === e ? 'bg-indigo-600 border-indigo-400' : 'bg-slate-900 border-slate-800'
-                      }`}
-                    >
-                      {e}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="flex flex-col gap-1 mt-2">
-                <label className="text-[11px] text-slate-400 font-medium">Mascot Character</label>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {MASCOT_CHARACTERS.map((char) => (
-                    <button
-                      key={char.id}
-                      onClick={() => updateConfig('character', char.id)}
-                      className={`p-1.5 text-xs rounded-lg border flex items-center gap-1.5 ${
-                        config.character === char.id ? 'bg-indigo-600/30 border-indigo-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-400'
-                      }`}
-                    >
-                      <span>{char.avatar}</span>
-                      <span className="truncate">{char.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </AccordionSection>
+  title="🎭 Avatar & Mascot"
+  isOpen={openSection === 'mascot'}
+  onToggle={() => toggleSection('mascot')}
+>
+  <div className="flex flex-col gap-1">
+    <label className="text-[11px] text-slate-400 font-medium">Select Emoji Icon</label>
+    <div className="flex gap-1.5 flex-wrap">
+      {emojiOptions.map((e) => (
+        <button
+          key={e}
+          onClick={() => {
+            updateConfig('emoji', e);
+            updateConfig('character', null); // Clears conflicting mascot state
+          }}
+          className={`w-7 h-7 text-xs rounded-lg border ${
+            config.emoji === e && !config.character ? 'bg-indigo-600 border-indigo-400' : 'bg-slate-900 border-slate-800'
+          }`}
+        >
+          {e}
+        </button>
+      ))}
+    </div>
+  </div>
+  <div className="flex flex-col gap-1 mt-2">
+    <label className="text-[11px] text-slate-400 font-medium">Mascot Character</label>
+    <div className="grid grid-cols-2 gap-1.5">
+      {MASCOT_CHARACTERS.map((char) => (
+        <button
+          key={char.id}
+          onClick={() => {
+            updateConfig('character', char.id);
+            updateConfig('emoji', null); // Clears conflicting emoji state
+          }}
+          className={`p-1.5 text-xs rounded-lg border flex items-center gap-1.5 ${
+            config.character === char.id ? 'bg-indigo-600/30 border-indigo-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-400'
+          }`}
+        >
+          <span>{char.avatar}</span>
+          <span className="truncate">{char.name}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+</AccordionSection>
           </>
-        )}
+        
       </div>
     </aside>
   );
